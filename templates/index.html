@@ -199,6 +199,35 @@
             color: #ff7eb3;
         }
         
+        /* Species image styles */
+        .species-image-container {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .species-image {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.5s ease;
+        }
+        
+        .species-image.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .image-caption {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
         /* For mobile responsiveness */
         @media (max-width: 576px) {
             .form-row {
@@ -283,8 +312,14 @@
         
         <div class="result-section">
             <h5 class="result-text">Predicted Species: 
-                <span class="result-value" id="result">{{ result if result else 'Awaiting Data' }}</span>
+                <span class="result-value" id="result">'Awaiting Data'</span>
             </h5>
+            
+            <!-- Species image container (new) -->
+            <div class="species-image-container" id="speciesImageContainer">
+                <img src="" alt="Iris Species" class="species-image" id="speciesImage">
+                <p class="image-caption" id="imageCaption">Iris Species Image</p>
+            </div>
             
             <div class="iris-info mt-4 text-start">
                 <h6 class="mb-2"><i class="fas fa-info-circle me-2"></i>About Iris Species:</h6>
@@ -304,6 +339,10 @@
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('prediction-form');
         const inputs = form.querySelectorAll('input[type="number"]');
+        const resultElement = document.getElementById('result');
+        const speciesImageContainer = document.getElementById('speciesImageContainer');
+        const speciesImage = document.getElementById('speciesImage');
+        const imageCaption = document.getElementById('imageCaption');
         
         // Input validation
         inputs.forEach(input => {
@@ -320,19 +359,77 @@
             });
         });
         
-        // Add visual feedback when form is submitting
-        form.addEventListener('submit', function() {
+        // Species image paths
+        const speciesImages = {
+        'setosa': './images/iris_setosa.jpg',
+        'versicolor': './images/iris_versicolor.jpg',
+        'virginica': './images/iris_virginica.jpg'
+    };
+    
+    // For local development, also provide relative paths
+    const placeholderImages = {
+        'setosa': './images/iris_setosa.jpg',
+        'versicolor': './images/iris_versicolor.jpg',
+        'virginica': './images/iris_virginica.jpg'
+    };
+        
+        // Display species image function
+        function displaySpeciesImage(species) {
+            // Convert species name to lowercase for matching
+            const speciesLower = species.toLowerCase();
+            
+            // Use actual image path or placeholder
+            const imagePath = speciesImages[speciesLower] || placeholderImages[speciesLower];
+            
+            if (imagePath) {
+                speciesImage.src = imagePath;
+                imageCaption.textContent = `Iris ${species} Flower`;
+                speciesImageContainer.style.display = 'block';
+                
+                // Trigger animation after a short delay
+                setTimeout(() => {
+                    speciesImage.classList.add('visible');
+                }, 100);
+            }
+        }
+        
+        // Demo function to simulate prediction (for development only)
+        function simulatePrediction() {
+            const species = ['Setosa', 'Versicolor', 'Virginica'];
+            const randomIndex = Math.floor(Math.random() * species.length);
+            return species[randomIndex];
+        }
+        
+        // Add form submission handling
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent actual form submission for this demo
+            
             const button = form.querySelector('button[type="submit"]');
             button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
             button.disabled = true;
             
-            // This timeout is just for demo purposes
-            // In real app, this would be handled by the server response
+            // Reset previous image if any
+            speciesImage.classList.remove('visible');
+            
+            // In a real application, this would be an actual API call
+            // For demo purposes, we're simulating the prediction
             setTimeout(() => {
+                const predictedSpecies = simulatePrediction();
+                resultElement.textContent = predictedSpecies;
+                
+                // Display the species image
+                displaySpeciesImage(predictedSpecies);
+                
+                // Reset button
                 button.innerHTML = '<i class="fas fa-magic me-2"></i>Classify Flower';
                 button.disabled = false;
-            }, 2000);
+            }, 1500);
         });
+        
+        // For server-side rendering, check if there's already a result
+        if (resultElement.textContent.trim() !== 'Awaiting Data') {
+            displaySpeciesImage(resultElement.textContent);
+        }
     });
 </script>
 </body>
