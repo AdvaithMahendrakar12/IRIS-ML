@@ -338,11 +338,19 @@
     // Form validation and enhancement
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('prediction-form');
-        const inputs = form.querySelectorAll('input[type="number"]');
-        const resultElement = document.getElementById('result');
-        const speciesImageContainer = document.getElementById('speciesImageContainer');
-        const speciesImage = document.getElementById('speciesImage');
-        const imageCaption = document.getElementById('imageCaption');
+    const inputs = form.querySelectorAll('input[type="number"]');
+    const resultElement = document.getElementById('result');
+    const speciesImageContainer = document.getElementById('speciesImageContainer');
+    const speciesImage = document.getElementById('speciesImage');
+    const imageCaption = document.getElementById('imageCaption');
+    const button = form.querySelector('button[type="submit"]');
+
+    // Enable button when any input changes
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            button.disabled = false; // Re-enable button if any input changes
+        });
+    });
         
         // Input validation
         inputs.forEach(input => {
@@ -360,18 +368,18 @@
         });
         
         // Species image paths
-        const speciesImages = {
-        'setosa': './images/iris_setosa.jpg',
-        'versicolor': './images/iris_versicolor.jpg',
-        'virginica': './images/iris_virginica.jpg'
-    };
-    
+       const speciesImages = {
+    'setosa': 'https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_setosa_2.jpg',
+    'versicolor': 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Iris_versicolor_3.jpg',
+    'virginica': 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg'
+};
+
     // For local development, also provide relative paths
     const placeholderImages = {
-        'setosa': './images/iris_setosa.jpg',
-        'versicolor': './images/iris_versicolor.jpg',
-        'virginica': './images/iris_virginica.jpg'
-    };
+    'setosa': '/static/images/iris_setosa.jpg',
+    'versicolor': '/static/images/iris_versicolor.jpg',
+    'virginica': '/static/images/iris_virginica.jpg'
+};
         
         // Display species image function
         function displaySpeciesImage(species) {
@@ -379,8 +387,8 @@
             const speciesLower = species.toLowerCase();
             
             // Use actual image path or placeholder
-            const imagePath = speciesImages[speciesLower] || placeholderImages[speciesLower];
-            
+            const imagePath = placeholderImages[speciesLower];
+            console.log("hello" + imagePath);
             if (imagePath) {
                 speciesImage.src = imagePath;
                 imageCaption.textContent = `Iris ${species} Flower`;
@@ -408,11 +416,8 @@
             button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
             button.disabled = true;
             
-            // Reset previous image if any
             speciesImage.classList.remove('visible');
-            
-            // In a real application, this would be an actual API call
-            // For demo purposes, we're simulating the prediction
+
             setTimeout(() => {
                 const predictedSpecies = simulatePrediction();
                 resultElement.textContent = predictedSpecies;
@@ -422,7 +427,7 @@
                 
                 // Reset button
                 button.innerHTML = '<i class="fas fa-magic me-2"></i>Classify Flower';
-                button.disabled = false;
+                button.disabled = true;
             }, 1500);
         });
         
